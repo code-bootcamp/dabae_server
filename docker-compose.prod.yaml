@@ -1,0 +1,11 @@
+version: '3.7'
+
+services:
+  my-backend:
+    image: asia.gcr.io/adept-vine-352601/dabae:1
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
