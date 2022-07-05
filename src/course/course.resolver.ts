@@ -8,5 +8,6 @@ export class CourseResolver {
   async getHello() {
     return await this.courseService.getHello();
     // lmldmfldmfl
+    //sdf
   }
 }
