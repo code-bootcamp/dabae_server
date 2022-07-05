@@ -7,5 +7,6 @@ export class CourseResolver {
   @Query(() => String)
   async getHello() {
     return await this.courseService.getHello();
+    // lmldmfldmfl
   }
 }
