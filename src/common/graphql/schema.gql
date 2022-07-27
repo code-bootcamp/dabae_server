@@ -14,15 +14,9 @@ type Image {
   course: Course!
 }
 
-type SpecificSchedule {
+type CourseDate {
   id: String!
-  maxUsers: Int!
-  reservedPerson: Int!
-  recruitmentEndDate: DateTime!
-  recruitmentStartDate: DateTime!
-  courseStartTime: DateTime!
-  courseEndTime: DateTime!
-  courseDate: CourseDate!
+  courseDay: DateTime!
   course: Course!
 }
 
@@ -30,13 +24,6 @@ type SpecificSchedule {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
-
-type CourseDate {
-  id: String!
-  courseDay: DateTime!
-  course: Course!
-  specificSchedule: [SpecificSchedule!]!
-}
 
 type Material {
   id: String!
@@ -96,6 +83,18 @@ type Pick {
   id: String!
   course: Course!
   user: User!
+}
+
+type SpecificSchedule {
+  id: String!
+  maxUsers: Int!
+  reservedPerson: Int!
+  recruitmentEndDate: DateTime!
+  recruitmentStartDate: DateTime!
+  courseStartTime: DateTime!
+  courseEndTime: DateTime!
+  courseDate: CourseDate!
+  course: Course!
 }
 
 type Payment {
