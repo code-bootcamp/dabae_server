@@ -2,7 +2,7 @@ import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
 export class CreateUserInput {
-  @Field(() => Boolean)
+  @Field(() => Boolean, { nullable: true })
   isHost: boolean;
 
   @Field(() => String)

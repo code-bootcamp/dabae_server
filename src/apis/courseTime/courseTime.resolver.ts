@@ -34,8 +34,8 @@ export class CourseTimeResolver {
   }
 
   @Query(() => [CourseTime])
-  async fetchCourseTimes() {
-    return await this.courseTimeService.findAll();
+  async fetchCourseTimes(@Args('courseDateId') courseDateId: string) {
+    return await this.courseTimeService.fetchCourseTimes(courseDateId);
   }
 
   @Mutation(() => Boolean)

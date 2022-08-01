@@ -41,22 +41,24 @@ export class PickService {
     const pickedCourse = await this.courseRepository.findOne({
       where: { id: course },
     });
+
     if (pickedCourse === null) {
       throw new ConflictException('존재하지않는 코스입니다.');
     }
+
     const pickingUser = await this.userRepository.findOne({
-      where: { id: user },
+      where: { id: user.id },
     });
-    if (pickingUser === null) {
-      throw new ConflictException('존재하지않는 유저입니다.');
-    }
 
     const allPicks = await this.pickRepository.find({
       relations: ['user', 'course'],
     });
 
     for (let i = 0; i < allPicks.length; i++) {
-      if (allPicks[i].user.id === user && allPicks[i].course.id === course) {
+      if (
+        allPicks[i].user.id === pickingUser.id &&
+        allPicks[i].course.id === pickedCourse.id
+      ) {
         pickedCourse.pick = pickedCourse.pick - 1;
         await this.courseRepository.save(pickedCourse);
         await this.pickRepository.softDelete({ id: allPicks[i].id });
@@ -66,7 +68,7 @@ export class PickService {
 
     pickedCourse.pick = pickedCourse.pick + 1;
     await this.courseRepository.save(pickedCourse);
-    await this.pickRepository.save({ course: course, user: user });
+    await this.pickRepository.save({ course: pickedCourse, user: pickingUser });
     return true;
   }
 }

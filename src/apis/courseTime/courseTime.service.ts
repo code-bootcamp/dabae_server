@@ -46,6 +46,12 @@ export class CourseTimeService {
     });
   }
 
+  async fetchCourseTimes(courseDateId) {
+    return await this.courseTimeRepository.find({
+      where: { courseDate: { id: courseDateId } },
+    });
+  }
+
   async delete({ courseTimeId }) {
     const result = await this.courseTimeRepository.softDelete({
       id: courseTimeId,

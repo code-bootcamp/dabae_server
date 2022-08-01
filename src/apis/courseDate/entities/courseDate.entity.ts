@@ -30,7 +30,7 @@ export class CourseDate {
   // )
   // @Field(() => [SpecificSchedule])
   // specificSchedule: SpecificSchedule[];
-  @OneToMany(() => CourseTime, (courseTime) => courseTime.course)
+  @OneToMany(() => CourseTime, (courseTime) => courseTime.courseDate)
   @Field(() => [CourseTime])
   courseTime: CourseTime[];
 }

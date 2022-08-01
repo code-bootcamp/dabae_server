@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Course } from 'src/apis/course/entities/course.entity';
 import { Payment } from 'src/apis/payment/entities/payment.entity';
 import { Pick } from 'src/apis/pick/entities/pick.entity';
 import {
@@ -6,6 +7,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -26,7 +28,7 @@ export class User {
   password: string;
 
   @Column()
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   nickname: string;
 
   @Column({ default: null })
