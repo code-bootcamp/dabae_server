@@ -10,16 +10,18 @@ export class PaymentResolver {
   constructor(
     private readonly paymentService: PaymentService, //
   ) {}
+
+  @UseGuards(GqlAuthAccessGuard)
   @Query(() => [Payment])
-  async fetchPayments() {
-    return await this.paymentService.findAll();
+  async fetchPaymentsByUser(@CurrentUser() currentUser: ICurrentUser) {
+    return await this.paymentService.fetchPaymentsByUser(currentUser);
   }
 
   @Query(() => Payment)
   async fetchPayment(
-    @Args('email') email: string, //
+    @Args('paymentId') paymentId: string, //
   ) {
-    return await this.paymentService.findOne({ email });
+    return await this.paymentService.findOne({ paymentId });
   }
 
   @UseGuards(GqlAuthAccessGuard)

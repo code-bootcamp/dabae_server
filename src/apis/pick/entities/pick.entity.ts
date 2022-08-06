@@ -5,7 +5,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -17,12 +16,12 @@ export class Pick {
   @Field(() => String)
   id: string;
 
-  @ManyToOne(() => Course)
-  @Field(() => Course)
+  @ManyToOne(() => Course, { nullable: true })
+  @Field(() => Course, { nullable: true })
   course: Course;
 
-  @ManyToOne(() => User)
-  @Field(() => User)
+  @ManyToOne(() => User, { nullable: true })
+  @Field(() => User, { nullable: true })
   user: User;
 
   @CreateDateColumn()

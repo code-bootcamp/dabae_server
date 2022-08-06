@@ -5,6 +5,7 @@
 type Category {
   id: String!
   name: String!
+  course: [Course!]
 }
 
 type Image {
@@ -69,10 +70,10 @@ type Course {
   lat: Float
   lng: Float
   pick: Int!
-  host: User!
+  host: User
   category: Category!
-  imageURLs: [Image!]!
-  materials: [Material!]!
+  imageURLs: [Image!]
+  materials: [Material!]
   review: [Review!]!
   courseDate: [CourseDate!]!
   courseTime: [CourseTime!]!
@@ -83,6 +84,7 @@ type Payment {
   id: String!
   status: PAYMENT_STATUS_ENUM!
   createdAt: DateTime!
+  deletedAt: DateTime!
   price: Int!
   quantity: Int!
   amount: Int!
@@ -99,14 +101,15 @@ enum PAYMENT_STATUS_ENUM {
 
 type Pick {
   id: String!
-  course: Course!
-  user: User!
+  course: Course
+  user: User
 }
 
 type User {
   id: String!
   email: String!
-  nickname: String
+  password: String!
+  nickname: String!
   phone: String
   point: Int!
   isHost: Boolean!
@@ -120,6 +123,11 @@ type User {
   marketingAgreement: Boolean!
   pick: [Pick!]!
   payment: [Payment!]!
+}
+
+type Point {
+  id: String!
+  addedPoint: Int!
 }
 
 type Query {
@@ -139,13 +147,17 @@ type Query {
   hotCourses: [Course!]!
   newCourses: [Course!]!
   cheapCourses: [Course!]!
+  howManyCourses: Int!
+  howManyCoursesByHost: Int!
+  myCourseRate: [String!]!
   fetchCourseDate(courseDateId: String!): CourseDate!
   fetchCourseTime(courseTimeId: String!): CourseTime!
   fetchCourseTimes(courseDateId: String!): [CourseTime!]!
   fetchPicks: [Pick!]!
-  fetchPicksByUser(userID: String!): [String!]!
-  fetchPayments: [Payment!]!
-  fetchPayment(email: String!): Payment!
+  fetchPicksByUser: [Course!]!
+  fetchPaymentsByUser: [Payment!]!
+  fetchPayment(paymentId: String!): Payment!
+  fetchPointHistory: [Point!]!
 }
 
 type Mutation {
@@ -193,12 +205,16 @@ type Mutation {
   updateCourse(courseId: String!, updateCourseInput: UpdateCourseInput!): Course!
   deleteCourse(courseId: String!): Boolean!
   createCourseDate(date: DateTime!, courseId: String!): CourseDate!
+  deleteCourseDate(courseDateId: String!): Boolean!
   createCourseTime(createCourseTimeInput: CreateCourseTimeInput!): CourseTime!
   updateCourseTimeInput(courseTimeId: String!, updateCourseTimeInput: UpdateCourseTimeInput!): CourseTime!
   deleteCourseTime(courseTimeId: String!): Boolean!
+  deletePicksInNullUser: Boolean!
   togglePick(courseId: String!): Boolean!
   createPayment(createPaymentInput: CreatePaymentInput!): Payment!
   cancelPayment(impUid: String!): Boolean!
+  chargePoint(amount: Float!, impUid: String!): Point!
+  usePoint(amount: Float!): Point!
 }
 
 input CreateReviewInput {
@@ -244,7 +260,7 @@ input CreateCourseInput {
   addressDetail: String!
   zipCode: String!
   difficulty: String!
-  materials: [String!] = ["준비물없음"]
+  materials: [String!]!
   contents: String!
   openingDate: DateTime!
   closingDate: DateTime!
@@ -255,18 +271,19 @@ input CreateCourseInput {
 }
 
 input UpdateCourseInput {
-  name: String!
-  maxPrice: Int!
-  minPrice: Int!
-  address: String!
-  addressDetail: String!
-  zipCode: String!
-  difficulty: String!
-  materials: [String!] = ["준비물없음"]
-  contents: String!
-  openingDate: DateTime!
-  closingDate: DateTime!
+  name: String
+  maxPrice: Int
+  minPrice: Int
+  address: String
+  addressDetail: String
+  zipCode: String
+  difficulty: String
+  materials: [String!]
+  contents: String
+  openingDate: DateTime
+  closingDate: DateTime
   imageURLs: [String!]
+  category: String
   lat: Float
   lng: Float
 }

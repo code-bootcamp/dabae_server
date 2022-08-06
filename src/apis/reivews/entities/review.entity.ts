@@ -26,10 +26,10 @@ export class Review {
   contents: string;
 
   @CreateDateColumn()
-  created_At: Date;
+  createdAt: Date;
 
   @DeleteDateColumn()
-  deleted_At: Date;
+  deletedAt: Date;
 
   @Column()
   @Field(() => String)

@@ -5,6 +5,7 @@ import { User } from 'src/apis/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -32,6 +33,10 @@ export class Payment {
   @CreateDateColumn()
   @Field(() => Date)
   createdAt: Date;
+
+  @DeleteDateColumn()
+  @Field(() => Date)
+  deletedAt: Date;
 
   @Column()
   @Field(() => Int)

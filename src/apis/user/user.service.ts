@@ -12,13 +12,21 @@ import * as bcryptjs from 'bcryptjs';
 import { Cache } from 'cache-manager';
 import coolsms from 'coolsms-node-sdk';
 import 'dotenv/config';
-import { CurrentUser } from 'src/common/auth/gql.user.param';
+import { Pick } from '../pick/entities/pick.entity';
+import { Course } from '../course/entities/course.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Pick)
+    private readonly pickRepository: Repository<Pick>,
+
+    @InjectRepository(Course)
+    private readonly courseRepository: Repository<Course>,
+
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
   ) {}
@@ -158,7 +166,7 @@ export class UserService {
     // 문자 요금 청구될까봐 주석처리해둠
 
     const messageService = new coolsms(SMS_KEY, SMS_SECRET);
-    const result = await messageService.sendOne({
+    await messageService.sendOne({
       to: phone,
       from: process.env.SMS_SENDER,
       text: `[다배] 요청하신 인증번호는 [${token}] 입니다.`,
@@ -177,6 +185,17 @@ export class UserService {
   }
 
   async delete(id: string) {
+    const pick = await this.pickRepository.find({
+      relations: ['user', 'course'],
+      where: { user: { id: id } },
+    });
+
+    if (pick) {
+      for (let i = 0; i < pick.length; i++) {
+        await this.pickRepository.softDelete({ id: pick[i].id });
+      }
+    }
+
     const result = await this.userRepository.softDelete({
       id: id,
     });

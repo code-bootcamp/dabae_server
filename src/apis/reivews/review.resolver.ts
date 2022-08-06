@@ -14,7 +14,6 @@ export class ReviewResolver {
   @Mutation(() => Review)
   async createCourseReview(
     @Args('createReviewInput') createReviewInput: CreateReviewInput,
-    // @Args('imageURL') imageURL: string,
     @CurrentUser() currentUser: ICurrentUser,
   ) {
     return this.reviewService.create(createReviewInput, currentUser);

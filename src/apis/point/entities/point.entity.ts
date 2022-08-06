@@ -2,6 +2,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { User } from 'src/apis/user/entities/user.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -15,8 +16,7 @@ export class Point {
   @Field(() => String)
   id: string;
 
-  @Column()
-  @Field(() => Date)
+  @CreateDateColumn()
   createdAt: Date;
 
   @Column()

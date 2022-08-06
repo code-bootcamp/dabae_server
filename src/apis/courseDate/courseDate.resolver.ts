@@ -18,4 +18,9 @@ export class CourseDateResolver {
   async fetchCourseDate(@Args('courseDateId') courseDateId: string) {
     return await this.courseDateService.findOne({ courseDateId });
   }
+
+  @Mutation(() => Boolean)
+  async deleteCourseDate(@Args('courseDateId') courseDateId: string) {
+    return await this.courseDateService.deleteCourseDate(courseDateId);
+  }
 }

@@ -15,16 +15,17 @@ import { PickModule } from './apis/pick/pick.module';
 import { PaymentModule } from './apis/payment/payment.module';
 import { FileModule } from './apis/file/file.module';
 import { CourseTimeModule } from './apis/courseTime/courseTime.module';
+import { PointModule } from './apis/point/point.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'my-database',
+      host: 'localhost',
       port: 3306,
       username: 'root',
       password: 'root',
-      database: 'dabae-server',
+      database: 'dabae-database',
       entities: [__dirname + '/apis/**/*.entity.*'],
       synchronize: true,
       logging: true,
@@ -42,7 +43,7 @@ import { CourseTimeModule } from './apis/courseTime/courseTime.module';
     }),
     CacheModule.register<RedisClientOptions>({
       store: redisStore,
-      url: 'redis://my-redis:6379',
+      url: 'redis://localhost:6379',
       isGlobal: true,
     }),
     ReviewModule,
@@ -54,6 +55,7 @@ import { CourseTimeModule } from './apis/courseTime/courseTime.module';
     CourseTimeModule,
     PickModule,
     PaymentModule,
+    PointModule,
   ],
   providers: [AppService],
   controllers: [AppController],

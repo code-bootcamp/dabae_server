@@ -8,6 +8,7 @@ import axios from 'axios';
 import { Course } from '../course/entities/course.entity';
 import { Point } from '../point/entities/point.entity';
 import { CourseTime } from '../courseTime/entities/courseTime.entity';
+import { use } from 'passport';
 
 @Injectable()
 export class PaymentService {
@@ -59,9 +60,6 @@ export class PaymentService {
       courseTime: courseTimeFound,
     });
 
-    // 👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻👻
-    // 수정해야할것: 항상 최대할인율을 적용하는 방식이 아니라 스케쥴에서 최대인원과 현재인원을 받아서 인원비율로 할인율을 적용해야함
-
     // 최대가격 - 최소가격 / 최대가격 × 100% = 최대할인율
     const max = courseFound.maxPrice;
     const min = courseFound.minPrice;
@@ -77,40 +75,36 @@ export class PaymentService {
     return result;
   }
 
-  async findAll() {
+  async fetchPaymentsByUser(currentUser) {
     const result = await this.paymentRepository.find({
-      relations: ['user', 'course', 'courseTime'],
+      where: { user: { id: currentUser.id } },
+      relations: ['user', 'course', 'courseTime', 'course.imageURL'],
     });
     return result;
   }
 
-  async findOne({ email }) {
+  async findOne({ paymentId }) {
     return await this.paymentRepository.findOne({
-      where: { id: email },
-      relations: ['user', 'course', 'courseTime'],
+      relations: ['user', 'course', 'courseTime', 'course.imageURL'],
+      where: { id: paymentId },
     });
   }
 
   async cancelPayment({ impUid }) {
     const access_token = await this.iamportService.getToken();
-    console.log(access_token);
-    try {
-      const getCancelData = await axios({
-        url: 'https://api.iamport.kr/payments/cancel',
-        method: 'post',
-        headers: {
-          Authorization: access_token,
-          'Content-Type': 'application/json',
-        },
-        data: {
-          imp_uid: impUid,
-        },
-      });
-      console.log(getCancelData);
 
-      return true;
-    } catch (error) {
-      throw new UnauthorizedException(error);
-    }
+    await axios({
+      url: 'https://api.iamport.kr/payments/cancel',
+      method: 'post',
+      headers: {
+        Authorization: access_token,
+        'Content-Type': 'application/json',
+      },
+      data: {
+        imp_uid: impUid,
+      },
+    });
+    const result = await this.paymentRepository.softDelete({ impUid: impUid });
+    return result.affected ? true : false;
   }
 }

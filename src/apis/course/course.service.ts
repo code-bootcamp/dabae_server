@@ -6,6 +6,7 @@ import { CourseTime } from '../courseTime/entities/courseTime.entity';
 import { Image } from '../image/entities/image.entity';
 import { Material } from '../material/entities/material.entity';
 import { Payment } from '../payment/entities/payment.entity';
+import { Review } from '../reivews/entities/review.entity';
 import { User } from '../user/entities/user.entity';
 import { Course } from './entities/course.entity';
 
@@ -26,6 +27,8 @@ export class CourseService {
     private readonly paymentRepository: Repository<Payment>,
     @InjectRepository(CourseTime)
     private readonly courseTimeRepository: Repository<CourseTime>,
+    @InjectRepository(Review)
+    private readonly reviewRepository: Repository<Review>,
   ) {}
 
   async findOne({ courseId }) {
@@ -70,9 +73,10 @@ export class CourseService {
         'imageURLs',
         'materials',
         'courseDate',
-        'courseDate.courseTime',
+        'courseTime',
         'category',
         'review',
+        'payment',
       ],
     });
     const result = [];
@@ -363,17 +367,14 @@ export class CourseService {
   }
 
   async fetchCoursesByUser(id, page) {
-    const user = await this.userRepository.findOne({
-      where: { id: id },
-    });
     const payments = await this.paymentRepository.find({
-      where: { user: user },
+      where: { user: { id: id } },
       relations: ['user', 'course', 'courseTime'],
     });
     const courses = [];
     for (let i = 0; i < payments.length; i++) {
       const course = await this.courseRepository.findOne({
-        where: { payment: payments[i] },
+        where: { payment: { id: payments[i].id } },
         relations: [
           'host',
           'imageURLs',
@@ -382,6 +383,7 @@ export class CourseService {
           'courseDate',
           'courseDate.courseTime',
           'review',
+          'payment',
         ],
       });
       courses.push(course);
@@ -391,6 +393,60 @@ export class CourseService {
       if (courses[i] !== undefined) pagination.push(courses[i]);
     }
     return pagination;
+  }
+
+  async myCourseRate(currentUser) {
+    const host = await this.userRepository.findOne({
+      where: { id: currentUser.id },
+    });
+
+    const myCourses = await this.courseRepository.find({
+      relations: [
+        'host',
+        'imageURLs',
+        'category',
+        'materials',
+        'courseDate',
+        'courseDate.courseTime',
+        'review',
+      ],
+      where: { host: { id: host.id } },
+    });
+
+    let one = 0;
+    let two = 0;
+    let three = 0;
+    let four = 0;
+    let five = 0;
+
+    for (let i = 0; i < myCourses.length; i++) {
+      const myReview = await this.reviewRepository.find({
+        relations: ['course', 'user'],
+        where: { course: { id: myCourses[i].id } },
+      });
+      console.log(myReview);
+      for (let j = 0; j < myReview.length; j++) {
+        if (myReview[j].rate === 1) {
+          one = one + 1;
+        } else if (myReview[j].rate === 2) {
+          two = two + 1;
+        } else if (myReview[j].rate === 3) {
+          three = three + 1;
+        } else if (myReview[j].rate === 4) {
+          four = four + 1;
+        } else if (myReview[j].rate === 5) {
+          five = five + 1;
+        }
+      }
+    }
+    const result = [];
+    result.push(one);
+    result.push(two);
+    result.push(three);
+    result.push(four);
+    result.push(five);
+
+    return result;
   }
 
   async create({ createCourseInput, currentUser }) {
@@ -452,34 +508,96 @@ export class CourseService {
     return result2;
   }
 
-  async update({ courseId, updateCourseInput }) {
-    const { imageURLs, ...updateCourse } = updateCourseInput;
+  async update(courseId, updateCourseInput) {
     const myCourse = await this.courseRepository.findOne({
+      relations: [
+        'host',
+        'imageURLs',
+        'category',
+        'materials',
+        'courseDate',
+        'courseDate.courseTime',
+        'review',
+      ],
       where: { id: courseId },
     });
-    const prevImage = await this.imageRepository.find({
-      where: { course: { id: courseId } },
+
+    const result = await this.courseRepository.save({
+      ...myCourse,
+      ...updateCourseInput,
     });
 
-    console.log(prevImage, '=====================');
-    const prevUrl = prevImage.map((imageURLs) => imageURLs.imageURLs);
-    console.log(prevUrl);
-    await Promise.all(
-      imageURLs.map((image) => {
-        if (!prevUrl.includes(image)) {
-          return this.imageRepository.save({
-            imageURLs: image,
-            course: { id: courseId },
-          });
-        }
-      }),
-    );
-    const newCourse = {
-      ...myCourse,
-      id: courseId,
-      ...updateCourse,
-    };
-    return await this.courseRepository.save(newCourse);
+    // 카테고리수정
+
+    // if (updateCourseInput.category) {
+    //   const category = updateCourseInput.category;
+    //   let categoryResult = await this.categoryRepository.findOne({
+    //     where: { name: category },
+    //   });
+    //   if (!categoryResult) {
+    //     categoryResult = await this.categoryRepository.save({
+    //       name: category,
+    //     });
+    //   }
+    //   result.category = categoryResult;
+    // }
+
+    if (updateCourseInput.materials) {
+      const materials = updateCourseInput.materials;
+      await this.materialRepository.softDelete({ course: result });
+      for (let i = 0; i < materials.length; i++) {
+        await this.materialRepository.save({
+          materials: materials[i],
+          course: result,
+        });
+      }
+    }
+
+    if (updateCourseInput.imageURLs) {
+      const imageURLs = updateCourseInput.imageURLs;
+      await this.imageRepository.softDelete({ course: result });
+      await this.imageRepository.save({
+        isThumbnail: true,
+        imageURLs: imageURLs[0],
+        course: result,
+      });
+      for (let i = 1; i < imageURLs.length; i++) {
+        await this.imageRepository.save({
+          isThumbnail: false,
+          imageURLs: imageURLs[i],
+          course: result,
+        });
+      }
+    }
+
+    const result2 = await this.courseRepository.findOne({
+      relations: [
+        'host',
+        'imageURLs',
+        'category',
+        'materials',
+        'courseDate',
+        'courseDate.courseTime',
+        'review',
+      ],
+      where: { id: result.id },
+    });
+
+    return result2;
+  }
+
+  async howManyCourses() {
+    const courses = await this.courseRepository.find();
+    const result = courses.length;
+    return result;
+  }
+
+  async howManyCoursesByHost(currentUser) {
+    const courses = await this.courseRepository.find({
+      where: { host: { id: currentUser.id } },
+    });
+    const result = courses.length;
+    return result;
   }
 
   async delete({ courseId }) {

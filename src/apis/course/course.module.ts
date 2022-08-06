@@ -10,6 +10,7 @@ import { Category } from '../category/entities/category.entity';
 import { Material } from '../material/entities/material.entity';
 import { Payment } from '../payment/entities/payment.entity';
 import { CourseTime } from '../courseTime/entities/courseTime.entity';
+import { Review } from '../reivews/entities/review.entity';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CourseTime } from '../courseTime/entities/courseTime.entity';
       Material,
       Payment,
       CourseTime,
+      Review,
     ]),
   ],
   exports: [CourseService],

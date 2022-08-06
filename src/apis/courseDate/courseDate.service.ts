@@ -22,4 +22,11 @@ export class CourseDateService {
       where: { id: courseDateId },
     });
   }
+
+  async deleteCourseDate(courseDateId) {
+    const result = await this.courseDateRepository.softDelete({
+      id: courseDateId,
+    });
+    return result.affected ? true : false;
+  }
 }

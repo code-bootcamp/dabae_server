@@ -6,6 +6,8 @@ import { JwtKakaoStrategy } from 'src/common/auth/jwt-social-kakaotalk.strategy'
 import { JwtNaverStrategy } from 'src/common/auth/jwt-social-naver.strategy';
 import { JwtAccessStrategy } from 'src/common/auth/jwt.access.strategy';
 import { JwtRefreshStrategy } from 'src/common/auth/jwt.refresh.strategy';
+import { Course } from '../course/entities/course.entity';
+import { Pick } from '../pick/entities/pick.entity';
 import { User } from '../user/entities/user.entity';
 import { UserService } from '../user/user.service';
 import { AuthController } from './auth.controller';
@@ -15,7 +17,7 @@ import { AuthService } from './auth.service';
 @Module({
   imports: [
     JwtModule.register({}), //
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Pick, Course]),
   ],
   providers: [
     AuthResolver, //

@@ -17,7 +17,7 @@ export class ReviewService {
   ) {}
 
   async create(createReviewInput, currentUser) {
-    if (createReviewInput.rate < 0 || createReviewInput.rate > 5) {
+    if (createReviewInput.rate < 1 || createReviewInput.rate > 5) {
       throw new ConflictException('다시 입력하세요.');
     }
 

@@ -15,7 +15,7 @@ import { PickModule } from './apis/pick/pick.module';
 import { PaymentModule } from './apis/payment/payment.module';
 import { FileModule } from './apis/file/file.module';
 import { CourseTimeModule } from './apis/courseTime/courseTime.module';
-import { AuthController } from './apis/auth/auth.controller';
+import { PointModule } from './apis/point/point.module';
 
 @Module({
   imports: [
@@ -78,6 +78,7 @@ import { AuthController } from './apis/auth/auth.controller';
     CourseTimeModule,
     PickModule,
     PaymentModule,
+    PointModule,
   ],
   providers: [AppService],
   controllers: [AppController],
